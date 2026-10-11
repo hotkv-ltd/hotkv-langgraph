@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/hotkv-ltd/hotkv-langgraph/security/policy
+    about: Do not open a public issue. Report vulnerabilities privately as described in SECURITY.md.
+  - name: Commercial support and sales
+    url: https://hotkv.com
+    about: Questions about the HotKV server, plans and commercial support.

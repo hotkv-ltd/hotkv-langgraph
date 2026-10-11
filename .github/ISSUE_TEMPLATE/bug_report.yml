@@ -1,0 +1,75 @@
+name: Bug report
+description: Report a bug or unexpected behavior in the HotKV checkpointer and store for LangGraph
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report a bug. For security vulnerabilities do not use this form, see SECURITY.md.
+
+  - type: input
+    id: sdk-version
+    attributes:
+      label: hotkv-langgraph version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: server-version
+    attributes:
+      label: HotKV server version
+      description: The version reported by the server, for example in the output of INFO server.
+      placeholder: "0.3.0"
+    validations:
+      required: true
+
+  - type: input
+    id: runtime
+    attributes:
+      label: Python version
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "Ubuntu 24.04, macOS 15, Windows 11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The smallest code or command sequence that shows the problem.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and error output
+      description: Paste relevant output. Remove passwords, tokens and any other secrets first.
+      render: text
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and found no duplicate.
+          required: true
+        - label: I removed passwords, tokens and other secrets from everything I pasted.
+          required: true

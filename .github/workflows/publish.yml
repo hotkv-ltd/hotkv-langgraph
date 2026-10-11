@@ -1,0 +1,106 @@
+name: Publish
+
+# Pushing a tag such as v1.0.1 builds, tests and publishes that version to PyPI.
+# "Run workflow" (workflow_dispatch) builds and tests too; it publishes only when
+# dry_run is turned off AND the workflow is run on a v* tag.
+#
+# Publishing uses PyPI trusted publishing (OpenID Connect), so there is no API
+# token in this repository. One-time setup on pypi.org: the project
+# "langgraph-checkpoint-hotkv" -> Publishing -> add a trusted publisher for this
+# repository, workflow file publish.yml and environment "pypi". Create the "pypi"
+# environment under Settings -> Environments.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build and test only; do not publish to PyPI"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test the distribution
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify the tag matches the package version
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          python - <<'PY'
+          import os
+          import sys
+          import tomllib
+
+          with open("pyproject.toml", "rb") as f:
+              version = tomllib.load(f)["project"]["version"]
+          if os.environ.get("GITHUB_REF_TYPE") == "tag":
+              tag = os.environ["GITHUB_REF_NAME"]
+              if tag != f"v{version}":
+                  sys.exit(f"tag {tag} does not match the package version {version} (expected v{version})")
+              print(f"tag {tag} matches version {version}")
+          elif os.environ.get("DRY_RUN", "true") != "true":
+              sys.exit("publishing needs a v* tag; run this workflow on a tag, or leave dry_run on")
+          else:
+              print(f"not a tag build; package version is {version}")
+          PY
+
+      - name: Install package and dev dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run unit tests (no server required)
+        run: python -m pytest tests/test_unit.py -v
+
+      - name: Build sdist and wheel
+        run: python -m build --outdir dist
+
+      - name: Check the distribution metadata
+        run: |
+          python -m pip install twine
+          python -m twine check --strict dist/*
+
+      - name: Install the wheel into a clean environment and import it
+        run: |
+          python -m venv /tmp/wheel-check
+          /tmp/wheel-check/bin/pip install dist/*.whl
+          /tmp/wheel-check/bin/python -c "from langgraph.checkpoint.hotkv import HotKVSaver, AsyncHotKVSaver; from langgraph.store.hotkv import HotKVStore, AsyncHotKVStore; print('imports ok')"
+
+      - name: Upload the distribution
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    # Not on a dry run. A push of a v* tag always publishes.
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: pypi
+    permissions:
+      id-token: write # PyPI trusted publishing
+    steps:
+      - name: Download the distribution
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

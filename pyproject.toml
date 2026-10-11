@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=77.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "langgraph-checkpoint-hotkv"
+version = "1.0.0"
+description = "LangGraph checkpointer and long-term memory store backed by HotKV, a RESP2/RESP3-compatible in-memory data store with built-in AI and LLM-serving features."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [
+    { name = "HotKV Ltd", email = "support@hotkv.com" },
+]
+maintainers = [
+    { name = "HotKV Ltd", email = "support@hotkv.com" },
+]
+keywords = ["hotkv", "langgraph", "langchain", "checkpointer", "agents", "memory", "llm", "ai"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+dependencies = [
+    "hotkv-client>=1.0.0,<2",
+    "langgraph-checkpoint>=4.2,<5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.23",
+    "langgraph>=1.2",
+    "langgraph-checkpoint-conformance>=0.0.2",
+    "build>=1.0",
+]
+
+[project.urls]
+Homepage = "https://hotkv.com"
+Documentation = "https://docs.hotkv.com"
+Source = "https://github.com/hotkv-ltd/hotkv-langgraph"
+Issues = "https://github.com/hotkv-ltd/hotkv-langgraph/issues"
+
+# langgraph and langgraph.checkpoint are namespace packages shared with the other
+# LangGraph checkpointers, so only our own subpackages are listed.
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["langgraph.checkpoint.hotkv*", "langgraph.store.hotkv*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+"langgraph.checkpoint.hotkv" = ["py.typed"]
+"langgraph.store.hotkv" = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
