@@ -1,5 +1,11 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Questions and ideas
+    url: https://github.com/hotkv-ltd/hotkv-langgraph/discussions
+    about: Ask a question, share an idea or show what you built. Use issues only for bugs and feature requests.
+  - name: Documentation
+    url: https://docs.hotkv.com
+    about: Guides and reference for HotKV.
   - name: Security vulnerability
     url: https://github.com/hotkv-ltd/hotkv-langgraph/security/policy
     about: Do not open a public issue. Report vulnerabilities privately as described in SECURITY.md.
